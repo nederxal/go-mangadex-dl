@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	athome "go-mangadex-dl/internal/atHome"
 	chapter "go-mangadex-dl/internal/chapter"
 )
@@ -13,9 +12,16 @@ func main() {
 	nextChapter := "1"
 	lang := "en"
 
-	r := chapter.GetChapter(mangaUUID, nextChapter, lang)
-	fmt.Println(r)
+	c := chapter.GetChapter(mangaUUID, nextChapter, lang)
 
-	ah := athome.GetAtHome("6289e6ee-32b4-4020-b8f1-5de988008732")
-	fmt.Println(ah)
+	// on garde que ce chapitre doit être retéléchargé
+	if c.ChapterData[0].ChapterAttributes.Pages == 0 {
+		panic("chapitre vide")
+	} else {
+		ah := athome.GetAtHome(c.ChapterData[0].Id)
+		// refaire le paramétrage de où DL le manga --> dans le /home/$USER/<manganame>/<chapternumber>/
+		// Gérer si tout le chapitre n'a pas été DL
+		chapter.Download(ah)
+	}
+
 }

@@ -7,8 +7,11 @@ import (
 	"net/url"
 )
 
+const URLATHOME = "https://api.mangadex.org/at-home/server/"
+
+// Get MangaDex@Home server URL
 func GetAtHome(chapterUUID string) AtHome {
-	url, err := url.JoinPath("https://api.mangadex.org/at-home/server/", chapterUUID)
+	url, err := url.JoinPath(URLATHOME, chapterUUID)
 	if err != nil {
 		panic(err)
 	}

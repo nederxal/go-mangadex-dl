@@ -4,30 +4,44 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	athome "go-mangadex-dl/internal/atHome"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
-func Download() {
+func Download(ah athome.AtHome) {
 	// URL Example : https://uploads.mangadex.org/data/<HASH>/<IMG>
-	resp, err := http.Get("https://uploads.mangadex.org/data/c6fc48b6fb79d5604c0847d21ed53227/1-002cd644db59fce2592f6c187796a17cfdbabcf8829a4ac6b0a8e2d70c393210.png")
-	if err != nil {
-		fmt.Println("Error get URL")
+	for _, page := range ah.Chapter.Data {
+		pageUrl, e := url.JoinPath(ah.BaseUrl, "data", ah.Chapter.Hash, page)
+		if e != nil {
+			panic("url foireuse")
+		}
+
+		fmt.Println(pageUrl)
+		resp, err := http.Get(pageUrl)
+		if err != nil {
+			fmt.Println("Error get URL")
+		}
+		defer resp.Body.Close()
+
+		r := bufio.NewReader(resp.Body)
+
+		output, _ := os.Create(page)
+		defer output.Close()
+
+		w := bufio.NewWriter(output)
+
+		r.WriteTo(w)
+		time.Sleep(200 * time.Millisecond)
+
 	}
-	defer resp.Body.Close()
 
-	r := bufio.NewReader(resp.Body)
-
-	output, _ := os.Create("toto.jpg")
-	defer output.Close()
-
-	w := bufio.NewWriter(output)
-
-	r.WriteTo(w)
 }
 
+// récupère la structure du chapitre
 func GetChapter(mangaUUID string, chapter string, lang string) ChapterStruct {
 	url, err := url.Parse("https://api.mangadex.org/chapter/")
 	if err != nil {
@@ -35,7 +49,7 @@ func GetChapter(mangaUUID string, chapter string, lang string) ChapterStruct {
 	}
 
 	q := url.Query()
-	q.Add("limit", "1")
+	q.Add("limit", "1")                 // --> Quantités de chapitres ressortis --> si plusieurs chapitres de la même langue on prend le premier proposé
 	q.Add("manga", mangaUUID)           // --> UUID du manga
 	q.Add("chapter", chapter)           // --> Numero du chapitre recherché
 	q.Add("translatedLanguage[]", lang) // --> langue ... fr possible mais surtout en anglais
