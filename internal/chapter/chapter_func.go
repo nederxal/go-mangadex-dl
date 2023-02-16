@@ -9,10 +9,19 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 )
 
-func Download(ah athome.AtHome) {
+func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
+	// Création destFolder
+	destFolder, _ := url.JoinPath(os.Getenv("HOME"), "Desktop", mangaName, mangaNextChapter)
+	fmt.Println(destFolder)
+	merr := os.MkdirAll(destFolder, os.ModePerm)
+	if merr != nil {
+		panic(merr)
+	}
+
 	// URL Example : https://uploads.mangadex.org/data/<HASH>/<IMG>
 	for _, page := range ah.Chapter.Data {
 		pageUrl, e := url.JoinPath(ah.BaseUrl, "data", ah.Chapter.Hash, page)
@@ -29,30 +38,29 @@ func Download(ah athome.AtHome) {
 
 		r := bufio.NewReader(resp.Body)
 
-		output, _ := os.Create(page)
+		output, _ := os.Create(destFolder + page)
 		defer output.Close()
 
 		w := bufio.NewWriter(output)
 
 		r.WriteTo(w)
-		time.Sleep(200 * time.Millisecond)
-
+		time.Sleep(151 * time.Millisecond)
 	}
 
 }
 
 // récupère la structure du chapitre
-func GetChapter(mangaUUID string, chapter string, lang string) ChapterStruct {
+func GetChapter(mangaUUID string, chapter int, lang string) ChapterStruct {
 	url, err := url.Parse("https://api.mangadex.org/chapter/")
 	if err != nil {
 		panic(err)
 	}
 
 	q := url.Query()
-	q.Add("limit", "1")                 // --> Quantités de chapitres ressortis --> si plusieurs chapitres de la même langue on prend le premier proposé
-	q.Add("manga", mangaUUID)           // --> UUID du manga
-	q.Add("chapter", chapter)           // --> Numero du chapitre recherché
-	q.Add("translatedLanguage[]", lang) // --> langue ... fr possible mais surtout en anglais
+	q.Add("limit", "1")                     // --> Quantités de chapitres ressortis --> si plusieurs chapitres de la même langue on prend le premier proposé
+	q.Add("manga", mangaUUID)               // --> UUID du manga
+	q.Add("chapter", strconv.Itoa(chapter)) // --> Numero du chapitre recherché à convertir en string parce que url.Query
+	q.Add("translatedLanguage[]", lang)     // --> langue ... fr possible mais surtout en anglais
 	// Les 3 options suivantes sont obligatoires (au moins une)
 	q.Add("contentRating[]", "safe")
 	q.Add("contentRating[]", "suggestive")
