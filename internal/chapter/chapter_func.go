@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -16,7 +17,6 @@ import (
 func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 	// Création destFolder
 	destFolder, _ := url.JoinPath(os.Getenv("HOME"), "Desktop", mangaName, mangaNextChapter)
-	fmt.Println(destFolder)
 	merr := os.MkdirAll(destFolder, os.ModePerm)
 	if merr != nil {
 		panic(merr)
@@ -38,7 +38,7 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 
 		r := bufio.NewReader(resp.Body)
 
-		output, _ := os.Create(destFolder + page)
+		output, _ := os.Create(filepath.Join(destFolder, filepath.Base(page)))
 		defer output.Close()
 
 		w := bufio.NewWriter(output)
