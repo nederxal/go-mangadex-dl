@@ -14,18 +14,20 @@ import (
 	"time"
 )
 
+const BASEURLCHAPTER string = "https://api.mangadex.org/chapter/"
+
 func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 	// Création destFolder
-	destFolder, _ := url.JoinPath(os.Getenv("HOME"), "Desktop", mangaName, mangaNextChapter)
-	merr := os.MkdirAll(destFolder, os.ModePerm)
-	if merr != nil {
-		panic(merr)
+	destFolder, _ := url.JoinPath(os.Getenv("HOME"), "Mangas", mangaName, mangaNextChapter)
+	err := os.MkdirAll(destFolder, os.ModePerm)
+	if err != nil {
+		panic(err)
 	}
 
 	// URL Example : https://uploads.mangadex.org/data/<HASH>/<IMG>
 	for _, page := range ah.Chapter.Data {
-		pageUrl, e := url.JoinPath(ah.BaseUrl, "data", ah.Chapter.Hash, page)
-		if e != nil {
+		pageUrl, err := url.JoinPath(ah.BaseUrl, "data", ah.Chapter.Hash, page)
+		if err != nil {
 			panic("url foireuse")
 		}
 
@@ -51,7 +53,7 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 
 // récupère la structure du chapitre
 func GetChapter(mangaUUID string, chapter int, lang string) ChapterStruct {
-	url, err := url.Parse("https://api.mangadex.org/chapter/")
+	url, err := url.Parse(BASEURLCHAPTER)
 	if err != nil {
 		panic(err)
 	}
@@ -72,14 +74,14 @@ func GetChapter(mangaUUID string, chapter int, lang string) ChapterStruct {
 	if err != nil {
 		panic(err)
 	}
-
 	defer r.Body.Close()
+
 	body, _ := io.ReadAll(r.Body)
 
 	var chap *ChapterStruct
-	errj := json.Unmarshal(body, &chap)
-	if errj != nil {
-		panic(errj)
+	err = json.Unmarshal(body, &chap)
+	if err != nil {
+		panic(err)
 	}
 
 	return *chap

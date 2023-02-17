@@ -11,17 +11,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func QueryDatabase() {
+const SQLQUERY string = "select * from mangas;"
 
+func QueryDatabase() {
 	db, err := sql.Open("sqlite3", "../db.sqlite")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	sqlQuery := "select * from mangas;"
-
-	rows, err := db.Query(sqlQuery)
+	rows, err := db.Query(SQLQUERY)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,24 +28,31 @@ func QueryDatabase() {
 
 	for rows.Next() {
 		var manga Mangas
-		err = rows.Scan(&manga.id, &manga.name, &manga.name_UUID, &manga.next_chapter, &manga.langue)
+		err = rows.Scan(&manga.id, &manga.name, &manga.nameUUID, &manga.nextChapter, &manga.langue)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		// on garde que ce chapitre doit être retéléchargé
 		for {
-			c := chapter.GetChapter(manga.name_UUID, manga.next_chapter, manga.langue)
+			c := chapter.GetChapter(manga.nameUUID, manga.nextChapter, manga.langue)
+
 			if len(c.ChapterData) == 0 {
-				fmt.Printf("%s chapitre %d vide / inexistant", manga.name, manga.next_chapter)
-				//TODO: mettre à jour la DB avec le prochain chapitre à télécharger
+				fmt.Printf("%s chapitre %d vide / inexistant", manga.name, manga.nextChapter)
+				defer updateDB(db, manga.id, manga.nextChapter)
 				break
 			} else {
 				ah := athome.GetAtHome(c.ChapterData[0].Id)
 				//TODO: Gérer si tout le chapitre n'a pas été DL
-				chapter.Download(ah, manga.name, strconv.Itoa(manga.next_chapter))
+				chapter.Download(ah, manga.name, strconv.Itoa(manga.nextChapter))
 			}
-			manga.next_chapter += 1
+			manga.nextChapter += 1
 		}
+	}
+}
+
+func updateDB(db *sql.DB, id, nextChapter int) {
+	_, err := db.Exec(`update mangas set next_chapter = ? where id = ?`, nextChapter, id)
+	if err != nil {
+		panic(err)
 	}
 }
