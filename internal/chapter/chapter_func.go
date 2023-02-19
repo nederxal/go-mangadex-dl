@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -18,7 +19,7 @@ const BASEURLCHAPTER string = "https://api.mangadex.org/chapter/"
 
 func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 	// Création destFolder
-	destFolder, _ := url.JoinPath(os.Getenv("HOME"), "Mangas", mangaName, mangaNextChapter)
+	destFolder := path.Join(os.Getenv("HOME"), "MangadexDownloads", mangaName, mangaNextChapter)
 	err := os.MkdirAll(destFolder, os.ModePerm)
 	if err != nil {
 		panic(err)

@@ -11,16 +11,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const SQLQUERY string = "select * from mangas;"
+const QUERYMANGAS string = "select * from mangas;"
 
-func QueryDatabase() {
-	db, err := sql.Open("sqlite3", "../db.sqlite")
+func QueryDatabase(pathDB string) {
+	db, err := sql.Open("sqlite3", pathDB)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	rows, err := db.Query(SQLQUERY)
+	rows, err := db.Query(QUERYMANGAS)
 	if err != nil {
 		log.Fatal(err)
 	}
