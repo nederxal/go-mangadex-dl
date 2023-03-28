@@ -1,19 +1,33 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	mdb "go-mangadex-dl/internal/mangadb"
 	"os"
 	"path"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	f, err := os.OpenFile(path.Join(os.Getenv("HOME"), "MangadexDownloads", "log.txt"), os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		log.Panic("Can't create log file !")
+	}
+
+	log.SetOutput(f)
+
 	pathDB := path.Join(os.Getenv("HOME"), "MangadexDownloads", "db.sqlite")
+
 	if _, err := os.Stat(pathDB); err == nil {
-		mdb.QueryDatabase(pathDB)
+		db, err := sql.Open("sqlite3", pathDB)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		mdb.QueryDatabase(db)
 	} else {
-		fmt.Println("The database doesn't exist !")
-		os.Exit(1)
+		log.Fatal("Database doesn't exist, bye")
 	}
 
 }

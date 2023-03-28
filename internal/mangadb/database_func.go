@@ -2,27 +2,20 @@ package mangadb
 
 import (
 	"database/sql"
-	"fmt"
 	athome "go-mangadex-dl/internal/atHome"
 	"go-mangadex-dl/internal/chapter"
-	"log"
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
+	log "github.com/sirupsen/logrus"
 )
 
 const QUERYMANGAS string = "select * from mangas;"
 
-func QueryDatabase(pathDB string) {
-	db, err := sql.Open("sqlite3", pathDB)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
+func QueryDatabase(db *sql.DB) {
 	rows, err := db.Query(QUERYMANGAS)
 	if err != nil {
-		log.Fatal(err)
+		log.Warn(err)
 	}
 	defer rows.Close()
 
@@ -37,7 +30,7 @@ func QueryDatabase(pathDB string) {
 			c := chapter.GetChapter(manga.nameUUID, manga.nextChapter, manga.langue)
 
 			if len(c.ChapterData) == 0 {
-				fmt.Printf("%s chapitre %d vide / inexistant", manga.name, manga.nextChapter)
+				log.Warn("%s chapitre %d vide / inexistant", manga.name, manga.nextChapter)
 				defer updateDB(db, manga.id, manga.nextChapter)
 				break
 			} else {

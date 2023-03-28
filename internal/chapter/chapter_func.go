@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const BASEURLCHAPTER string = "https://api.mangadex.org/chapter/"
@@ -22,20 +24,20 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 	destFolder := path.Join(os.Getenv("HOME"), "MangadexDownloads", mangaName, mangaNextChapter)
 	err := os.MkdirAll(destFolder, os.ModePerm)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	// URL Example : https://uploads.mangadex.org/data/<HASH>/<IMG>
 	for _, page := range ah.Chapter.Data {
 		pageUrl, err := url.JoinPath(ah.BaseUrl, "data", ah.Chapter.Hash, page)
 		if err != nil {
-			panic("url foireuse")
+			log.Error("url foireuse")
 		}
 
 		fmt.Println(pageUrl)
 		resp, err := http.Get(pageUrl)
 		if err != nil {
-			fmt.Println("Error get URL")
+			log.Error("Error get URL")
 		}
 		defer resp.Body.Close()
 
@@ -56,7 +58,7 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 func GetChapter(mangaUUID string, chapter int, lang string) ChapterStruct {
 	url, err := url.Parse(BASEURLCHAPTER)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	q := url.Query()
@@ -73,7 +75,7 @@ func GetChapter(mangaUUID string, chapter int, lang string) ChapterStruct {
 
 	r, err := http.Get(url.String())
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 	defer r.Body.Close()
 
@@ -82,7 +84,7 @@ func GetChapter(mangaUUID string, chapter int, lang string) ChapterStruct {
 	var chap *ChapterStruct
 	err = json.Unmarshal(body, &chap)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	return *chap

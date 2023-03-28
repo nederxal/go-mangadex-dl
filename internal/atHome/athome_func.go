@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const URLATHOME = "https://api.mangadex.org/at-home/server/"
@@ -13,12 +15,12 @@ const URLATHOME = "https://api.mangadex.org/at-home/server/"
 func GetAtHome(chapterUUID string) AtHome {
 	url, err := url.JoinPath(URLATHOME, chapterUUID)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	resp, err := http.Get(url)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	defer resp.Body.Close()
@@ -27,7 +29,7 @@ func GetAtHome(chapterUUID string) AtHome {
 	var ah *AtHome
 	errj := json.Unmarshal(body, &ah)
 	if errj != nil {
-		panic(errj)
+		log.Panic(errj)
 	}
 	return *ah
 }

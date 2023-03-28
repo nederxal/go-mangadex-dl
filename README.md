@@ -1,6 +1,6 @@
 # go-mangadex-dl
 
 TODO:
-- créer un logger pour savoir où et comment ça plante (et dans un fichier )
 - Nettoyer la DB en fin de passage sur les mangas marqués "completed"
+- vérifier la différence entre le dernier chapitre téléchargé et le dernier chapitre dispo globalement pour savoir si le manga est toujours dispo dans la langue demandée
 - Documentation sur initialisation et comment utiliser le programme.
