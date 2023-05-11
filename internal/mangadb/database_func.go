@@ -2,9 +2,7 @@ package mangadb
 
 import (
 	"database/sql"
-	athome "go-mangadex-dl/internal/atHome"
-	"go-mangadex-dl/internal/chapter"
-	"strconv"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 	log "github.com/sirupsen/logrus"
@@ -12,40 +10,26 @@ import (
 
 const QUERYMANGAS string = "select * from mangas;"
 
-func QueryDatabase(db *sql.DB) {
+func QueryDB(db *sql.DB) *sql.Rows {
 	rows, err := db.Query(QUERYMANGAS)
 	if err != nil {
 		log.Warn(err)
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var manga Mangas
-		err = rows.Scan(&manga.id, &manga.name, &manga.nameUUID, &manga.nextChapter, &manga.langue)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for {
-			c := chapter.GetChapter(manga.nameUUID, manga.nextChapter, manga.langue)
-
-			if len(c.ChapterData) == 0 {
-				log.Warn("%s chapitre %d vide / inexistant", manga.name, manga.nextChapter)
-				defer updateDB(db, manga.id, manga.nextChapter)
-				break
-			} else {
-				ah := athome.GetAtHome(c.ChapterData[0].Id)
-				//TODO: Gérer si tout le chapitre n'a pas été DL
-				chapter.Download(ah, manga.name, strconv.Itoa(manga.nextChapter))
-			}
-			manga.nextChapter += 1
-		}
-	}
+	return rows
 }
 
-func updateDB(db *sql.DB, id, nextChapter int) {
+func UpdateDB(db *sql.DB, id, nextChapter int) {
 	_, err := db.Exec(`update mangas set next_chapter = ? where id = ?`, nextChapter, id)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func RemoveFromDB(db *sql.DB, id int) {
+	_, err := db.Exec(`delete from mangas where id = ?`, id)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+
 	}
 }

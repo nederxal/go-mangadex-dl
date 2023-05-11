@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	mdb "go-mangadex-dl/internal/mangadb"
+	m "go-mangadex-dl/internal/manga"
 	"os"
 	"path"
 
@@ -21,13 +21,15 @@ func main() {
 
 	if _, err := os.Stat(pathDB); err == nil {
 		db, err := sql.Open("sqlite3", pathDB)
+
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		defer db.Close()
-		mdb.QueryDatabase(db)
+		m.ListMangas(db)
+
 	} else {
 		log.Fatal("Database doesn't exist, bye")
 	}
-
 }

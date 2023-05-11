@@ -1,9 +1,9 @@
 package mangadb
 
 type Mangas struct {
-	id          int
-	name        string
-	nameUUID    string
-	nextChapter int
-	langue      string
+	Id          int
+	Name        string
+	UUID        string
+	NextChapter int
+	Langue      string
 }

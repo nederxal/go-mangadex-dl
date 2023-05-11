@@ -49,7 +49,7 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 		w := bufio.NewWriter(output)
 
 		r.WriteTo(w)
-		time.Sleep(151 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 	}
 
 }
