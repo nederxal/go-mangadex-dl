@@ -1,6 +1,7 @@
 package chapter
 
 import (
+	"archive/zip"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -19,22 +19,34 @@ import (
 
 const BASEURLCHAPTER string = "https://api.mangadex.org/chapter/"
 
+// On va créer directement le cbz dans là où ça doit être télécharger (oui smart phrase on est bien)
 func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
-	// Création destFolder
-	destFolder := path.Join(os.Getenv("HOME"), "MangadexDownloads", mangaName, mangaNextChapter)
+	// On s'assure que le répertoire du manga existe (au pire ça le créé)
+	destFolder := path.Join(os.Getenv("HOME"), "MangadexDownloads", mangaName)
 	err := os.MkdirAll(destFolder, os.ModePerm)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	// URL Example : https://uploads.mangadex.org/data/<HASH>/<IMG>
+	// Creation de l'archive cbz
+	cbzPath := path.Join(destFolder, mangaNextChapter+".cbz")
+	cbzChapter, err := os.Create(cbzPath)
+	if err != nil {
+		panic(err)
+	}
+	defer cbzChapter.Close()
+
+	cbzWriter := zip.NewWriter(cbzChapter)
+
+	// On va récupérer les pages une par une et les ajouter à l'archive
 	for _, page := range ah.Chapter.Data {
+
 		pageUrl, err := url.JoinPath(ah.BaseUrl, "data", ah.Chapter.Hash, page)
+		fmt.Println(pageUrl)
 		if err != nil {
 			log.Error("url foireuse")
 		}
 
-		fmt.Println(pageUrl)
 		resp, err := http.Get(pageUrl)
 		if err != nil {
 			log.Error("Error get URL")
@@ -43,14 +55,20 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 
 		r := bufio.NewReader(resp.Body)
 
-		output, _ := os.Create(filepath.Join(destFolder, filepath.Base(page)))
-		defer output.Close()
+		w, err := cbzWriter.Create(page)
+		if err != nil {
+			panic(err)
+		}
 
-		w := bufio.NewWriter(output)
+		if _, err := io.Copy(w, r); err != nil {
+			panic(err)
+		}
 
-		r.WriteTo(w)
+		// Temps de pause pour pas se faire striker parle limiteur de mangadex
 		time.Sleep(200 * time.Millisecond)
 	}
+
+	cbzWriter.Close()
 
 }
 
