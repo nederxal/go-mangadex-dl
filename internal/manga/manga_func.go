@@ -15,6 +15,27 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type myMangas struct {
+	Id          int
+	Name        string
+	UUID        string
+	NextChapter int
+	Langue      string
+}
+
+// Only needed data to gather from mangadex
+type mangaDexInfo struct {
+	Data struct {
+		Attributes struct {
+			Title struct {
+				En string `json:"en"` // title will always exist in English, otherwise check in altTitle but may won't exist ...
+			}
+			Status      string `json:"status"`
+			LastChapter string `json:"lastChapter"` // aaaaand it's not an int ...
+		}
+	}
+}
+
 const GETMANGA = "https://api.mangadex.org/manga/"
 
 func ListMangas(db *sql.DB) {
@@ -23,7 +44,7 @@ func ListMangas(db *sql.DB) {
 
 	// parcours les mangas à télécharger
 	for rows.Next() {
-		var manga mdb.Mangas
+		var manga myMangas
 		err := rows.Scan(&manga.Id, &manga.Name, &manga.UUID, &manga.NextChapter, &manga.Langue)
 		if err != nil {
 			log.Fatal(err)
@@ -52,6 +73,7 @@ func ListMangas(db *sql.DB) {
 	}
 }
 
+// To run at the end and clean database from ended mangas
 func getMangaStatus(db *sql.DB, name, mangaUUID string, id, chapter int) bool {
 	mangaUrl, err := url.JoinPath(GETMANGA, mangaUUID)
 	if err != nil {
@@ -66,7 +88,7 @@ func getMangaStatus(db *sql.DB, name, mangaUUID string, id, chapter int) bool {
 
 	body, _ := io.ReadAll(resp.Body)
 
-	var manga *Manga
+	var manga *mangaDexInfo
 
 	err = json.Unmarshal(body, &manga)
 	if err != nil {
@@ -83,4 +105,10 @@ func getMangaStatus(db *sql.DB, name, mangaUUID string, id, chapter int) bool {
 	// }
 
 	return false
+}
+
+// Just to get manga name and insert it into database
+func GetMangaNameFromUUID(uuid string) string {
+	mangaName := "dummy"
+	return mangaName
 }
