@@ -2,6 +2,7 @@ package mangadb
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"fmt"
 	"os"
 
@@ -40,9 +41,14 @@ func CreateDatabase(pathDB, UUIDList string) {
 	} else {
 		if stat.Size() > 0 {
 			fmt.Println("fonction à ajouter et fichier à parcourir")
+
 			// Parcourir le CSV des UUID de mangas et du premier chapitre à télécharger -> ajouter dans la base -> continuer le programme
-			// csvDoubleTab, _ := csv.ReadAll blablabla
-			// AddMangas(db, csvDoubleTab)
+			file, _ := os.Open(UUIDList)
+			defer file.Close()
+
+			reader := csv.NewReader(file)
+			csvDoubleTab, _ := reader.ReadAll()
+			AddMangas(db, csvDoubleTab)
 
 		} else {
 			log.Warn("File is empty.")

@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	m "go-mangadex-dl/internal/manga"
 	mdb "go-mangadex-dl/internal/mangadb"
 	"os"
 	"path"
@@ -36,5 +35,5 @@ func main() {
 
 	defer db.Close()
 	os.Exit(1)
-	m.ListMangas(db)
+	mdb.ListMangas(db)
 }
