@@ -3,7 +3,6 @@ package mangadb
 import (
 	"database/sql"
 	"encoding/csv"
-	"fmt"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -40,8 +39,6 @@ func CreateDatabase(pathDB, UUIDList string) {
 		log.Warn("File not found won't add new mangas")
 	} else {
 		if stat.Size() > 0 {
-			fmt.Println("fonction à ajouter et fichier à parcourir")
-
 			// Parcourir le CSV des UUID de mangas et du premier chapitre à télécharger -> ajouter dans la base -> continuer le programme
 			file, _ := os.Open(UUIDList)
 			defer file.Close()

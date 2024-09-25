@@ -1,9 +1,20 @@
 # go-mangadex-dl
 
-TODO:
-- Fonction pour ajouter dans la base avec chapitre de départ (Utiliser l'UUID et récupérer les infos à partir de là pour le nom du manga) --> faire la lecture du CSV qui contient les mangas à ajouter -> récupérer le titre du manga via son UUID (API) --> ajouter dans la base 
-- Nettoyage de la base quand un manga est terminé (et téléchargé)
+## But
 
+Le but de ce programme est d'apprendre à faire du go avec des choses basiques.
+
+Les choses peuvent être améliorées, revues, changées ... bref  c'est pour apprendre.
+
+Le fichier csv dans la forme :
+
+| UUID | code langue | 1er chapitre à dl |
+| :---: | :---: | :---: |
+|80422e14-b9ad-4fda-970f-de370d5fa4e5|en|1|
+
+## TODO:
+
+- Nettoyage de la base quand un manga est terminé (et téléchargé) --> vérifier le cas où les chapitres sont indispos pour la langue choisie
 
 Un jour peut être ...
 - Petit scan de komga pour les nouveaux chapitres téléchargés.

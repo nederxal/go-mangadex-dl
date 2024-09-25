@@ -77,10 +77,9 @@ func GetMangaStatus(db *sql.DB, name, mangaUUID string, id, chapter int) bool {
 		return true
 	}
 
-	// if manga.Data.Attributes.Status == "completed" && manga.Data.Attributes.LastChapter != strconv.Itoa(chapter) {
-	// 	fmt.Println(name + " pas terminé ... à voir si il manque des chapitres dans la langue")
-	// 	return true
-	// }
+	if mangaDexInfo.Data.Attributes.Status == "completed" && mangaDexInfo.Data.Attributes.LastChapter != strconv.Itoa(chapter) {
+		log.Info(name + " pas terminé ... à voir si il manque des chapitres dans la langue")
+	}
 
 	return false
 }

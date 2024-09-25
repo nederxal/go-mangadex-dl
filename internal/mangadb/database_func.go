@@ -96,6 +96,4 @@ func AddMangas(db *sql.DB, csvDoubleTab [][]string) {
 			log.Error(err)
 		}
 	}
-
-	// 	db.Exec/Query ? avec UUID/Name/Chapitre/Langue
 }
