@@ -6,13 +6,15 @@ Le but de ce programme est d'apprendre à faire du go avec des choses basiques.
 
 Les choses peuvent être améliorées, revues, changées ... bref  c'est pour apprendre.
 
-Le fichier csv dans la forme :
+Format du fichier uuid.csv
 
-| UUID | code langue | 1er chapitre à dl |
-| :---: | :---: | :---: |
-|80422e14-b9ad-4fda-970f-de370d5fa4e5|en|1|
+| uuid | code langue | 1er chapitre |
+| :---:         |     :---:      |          :---: |
+| 80422e14-b9ad-4fda-970f-de370d5fa4e5   | en | 1 |
 
-## TODO:
+
+
+## TODO
 
 - Nettoyage de la base quand un manga est terminé (et téléchargé) --> vérifier le cas où les chapitres sont indispos pour la langue choisie
 
