@@ -34,6 +34,6 @@ func main() {
 	db, _ := sql.Open("sqlite3", pathDB)
 
 	defer db.Close()
-	os.Exit(1)
+
 	mdb.ListMangas(db)
 }
