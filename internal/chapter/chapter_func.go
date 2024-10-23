@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"bufio"
 	"encoding/json"
-	"fmt"
 	athome "go-mangadex-dl/internal/atHome"
 	"io"
 	"net/http"
@@ -20,7 +19,7 @@ import (
 const BASEURLCHAPTER string = "https://api.mangadex.org/chapter/"
 
 // On va créer directement le cbz dans là où ça doit être télécharger (oui smart phrase on est bien)
-func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
+func Download(ah athome.AtHome, mangaName, mangaNextChapter string) bool {
 	// On s'assure que le répertoire du manga existe (au pire ça le créé)
 	destFolder := path.Join(os.Getenv("HOME"), "MangadexDownloads", mangaName)
 	err := os.MkdirAll(destFolder, os.ModePerm)
@@ -42,7 +41,8 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 	for _, page := range ah.Chapter.Data {
 
 		pageUrl, err := url.JoinPath(ah.BaseUrl, "data", ah.Chapter.Hash, page)
-		fmt.Println(pageUrl)
+		// fmt.Println(pageUrl)
+		log.Debugf("Get page : %s", pageUrl)
 		if err != nil {
 			log.Error("url foireuse")
 		}
@@ -64,12 +64,12 @@ func Download(ah athome.AtHome, mangaName, mangaNextChapter string) {
 			panic(err)
 		}
 
-		// Temps de pause pour pas se faire striker parle limiteur de mangadex
+		// Temps de pause pour pas se faire striker par le limiteur de mangadex
 		time.Sleep(200 * time.Millisecond)
 	}
 
 	cbzWriter.Close()
-
+	return true
 }
 
 // récupère la structure du chapitre
@@ -104,6 +104,5 @@ func GetChapter(mangaUUID string, chapter int, lang string) ChapterStruct {
 	if err != nil {
 		log.Panic(err)
 	}
-
 	return *chap
 }

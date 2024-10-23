@@ -22,3 +22,4 @@ Un jour peut être ...
 - Petit scan de komga pour les nouveaux chapitres téléchargés.
 - Documentation sur initialisation et comment utiliser le programme.
 - Lire un fichier de paramétrage pour les chemins où télécharger les mangas
+- documenter pour faire tourner avec systemd de manière cyclique sans que 2 run se marchent dessus

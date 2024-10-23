@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	m "go-mangadex-dl/internal/manga"
 	mdb "go-mangadex-dl/internal/mangadb"
 	"os"
 	"path"
@@ -27,13 +28,19 @@ func main() {
 	_, err = os.Stat(pathDB)
 	if err != nil {
 		log.Warn("Database doesn't exist ... creating it ...")
+		mdb.CreateDatabase(pathDB)
 	}
-	// Creation si n'existe pas et ajoute des mangas
-	mdb.CreateDatabase(pathDB, UUIDList)
 
-	db, _ := sql.Open("sqlite3", pathDB)
-
+	db, err := sql.Open("sqlite3", pathDB)
+	if err != nil {
+		log.Error(err)
+	}
 	defer db.Close()
 
-	mdb.ListMangas(db)
+	m.AddMangas(db, UUIDList)
+	m.ListMangas(db)
+
+	// cleanup
+	// m.GetMangaStatus(db ...)
+
 }
