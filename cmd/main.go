@@ -38,9 +38,9 @@ func main() {
 	defer db.Close()
 
 	m.AddMangas(db, UUIDList)
-	m.ListMangas(db)
+	liste := m.ListMangas(db)
 
 	// cleanup
-	// m.GetMangaStatus(db ...)
+	_ = m.GetMangaStatus(db, liste)
 
 }

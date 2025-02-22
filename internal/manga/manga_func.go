@@ -70,7 +70,7 @@ func AddMangas(db *sql.DB, uuidlist string) {
 }
 
 // Liste les mangas à télécharger et ensuite va chercher les chapitres 1 par 1
-func ListMangas(db *sql.DB) {
+func ListMangas(db *sql.DB) []myMangas {
 
 	var liste []myMangas
 	rows := mdb.GetAllMangas(db)
@@ -106,6 +106,7 @@ func ListMangas(db *sql.DB) {
 			l.NextChapter += 1
 		}
 	}
+	return liste
 }
 
 // Just to get manga name and insert it into database
@@ -134,34 +135,35 @@ func getMangaNameFromUUID(uuid string) string {
 }
 
 // To run at the end and clean database from ended mangas
-func GetMangaStatus(db *sql.DB, name, mangaUUID string, id, chapter int) bool {
-	mangaUrl, err := url.JoinPath(GETMANGA, mangaUUID)
-	if err != nil {
-		log.Error("url foireuse")
+func GetMangaStatus(db *sql.DB, liste []myMangas) (retVal int) {
+
+	for _, l := range liste {
+		mangaUrl, _ := url.JoinPath(GETMANGA, l.UUID)
+		resp, err := http.Get(mangaUrl)
+		if err != nil {
+			log.Error("Error get URL")
+		}
+		defer resp.Body.Close()
+
+		body, _ := io.ReadAll(resp.Body)
+
+		var mangaDexInfo *mangaDexInfo
+
+		err = json.Unmarshal(body, &mangaDexInfo)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		if mangaDexInfo.Data.Attributes.Status == "completed" && mangaDexInfo.Data.Attributes.LastChapter < strconv.Itoa(l.NextChapter) {
+			log.Info(l.Name + " pas terminé ... à voir si il manque des chapitres dans la langue")
+			return 1
+		}
+
+		if mangaDexInfo.Data.Attributes.Status == "completed" && mangaDexInfo.Data.Attributes.LastChapter >= strconv.Itoa(l.NextChapter) {
+			log.Info("Suppression de " + l.Name)
+			mdb.RemoveFromDB(db, l.UUID)
+			return 2
+		}
 	}
-
-	resp, err := http.Get(mangaUrl)
-	if err != nil {
-		log.Error("Error get URL")
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-
-	var mangaDexInfo *mangaDexInfo
-
-	err = json.Unmarshal(body, &mangaDexInfo)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	if mangaDexInfo.Data.Attributes.Status == "completed" && mangaDexInfo.Data.Attributes.LastChapter == strconv.Itoa(chapter) {
-		return true
-	}
-
-	if mangaDexInfo.Data.Attributes.Status == "completed" && mangaDexInfo.Data.Attributes.LastChapter != strconv.Itoa(chapter) {
-		log.Info(name + " pas terminé ... à voir si il manque des chapitres dans la langue")
-	}
-
-	return false
+	return 0
 }

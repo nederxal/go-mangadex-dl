@@ -35,8 +35,8 @@ func InsertDB(db *sql.DB, name, name_UUID, langue string, next_chapter int) {
 
 }
 
-func RemoveFromDB(db *sql.DB, id int) {
-	_, err := db.Exec(`delete from mangas where id = ?`, id)
+func RemoveFromDB(db *sql.DB, uuid string) {
+	_, err := db.Exec(`delete from mangas where name_UUID = ?`, uuid)
 	if err != nil {
 		log.Warn(err)
 
